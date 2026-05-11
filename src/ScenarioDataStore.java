@@ -1,13 +1,16 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScenarioDataStore {
 
-    public static List<Scenario> getAllScenarios() {
-        List<Scenario> scenarios = new ArrayList<>();
+    public static Map<String, List<Scenario>> getAllScenarios() {
+        Map<String, List<Scenario>> scenarioMap = new HashMap<>();
+
+        List<Scenario> eduScenarios = new ArrayList<>();
 
         Scenario eduScenC = new Scenario("Product Quality", "Education", "Scenario C - Team Alpha");
-
         Dimension usability = new Dimension("Usability", 25);
         usability.addMetric(new Metric("SUS score", 50, "Higher↑", "0-100", "points"));
         usability.addMetric(new Metric("Onboarding time", 50, "Lower↓", "0-60", "min"));
@@ -33,26 +36,33 @@ public class ScenarioDataStore {
         funcSuitability.addMetric(new Metric("Assignment submit rate", 50, "Higher↑", "0-100", "%"));
         eduScenC.addDimension(funcSuitability);
 
-        scenarios.add(eduScenC);
-
         Scenario eduScenD = new Scenario("Process Quality", "Education", "Scenario D - Team Beta");
         Dimension sprint = new Dimension("Sprint Efficiency", 100);
         sprint.addMetric(new Metric("Velocity", 100, "Higher↑", "0-100", "points"));
         eduScenD.addDimension(sprint);
-        scenarios.add(eduScenD);
+
+        eduScenarios.add(eduScenC);
+        eduScenarios.add(eduScenD);
+        scenarioMap.put("Education", eduScenarios);
+
+        List<Scenario> healthScenarios = new ArrayList<>();
 
         Scenario healthScenA = new Scenario("Product Quality", "Health", "Scenario A - Patient Portal");
         Dimension security = new Dimension("Security", 100);
         security.addMetric(new Metric("Data Breaches", 100, "Lower↓", "0-10", "incidents"));
         healthScenA.addDimension(security);
-        scenarios.add(healthScenA);
 
         Scenario healthScenB = new Scenario("Process Quality", "Health", "Scenario B - Core API");
         Dimension codeQual = new Dimension("Code Quality", 100);
         codeQual.addMetric(new Metric("Test Coverage", 100, "Higher↑", "0-100", "%"));
         healthScenB.addDimension(codeQual);
-        scenarios.add(healthScenB);
 
-        return scenarios;
+        healthScenarios.add(healthScenA);
+        healthScenarios.add(healthScenB);
+        scenarioMap.put("Health", healthScenarios);
+
+        scenarioMap.put("Custom", new ArrayList<>());
+
+        return scenarioMap;
     }
 }

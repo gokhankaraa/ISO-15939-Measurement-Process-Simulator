@@ -1,7 +1,7 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 public class DefinePanel extends JPanel {
     private SessionController sessionController;
@@ -9,11 +9,12 @@ public class DefinePanel extends JPanel {
     private JRadioButton productRadio, processRadio;
     private JRadioButton customRadio, healthRadio, educationRadio;
     private JComboBox<String> scenarioComboBox;
-    private List<Scenario> allScenarios;
+
+    private Map<String, List<Scenario>> scenarioMap;
 
     public DefinePanel(SessionController sessionController) {
         this.sessionController = sessionController;
-        this.allScenarios = ScenarioDataStore.getAllScenarios();
+        this.scenarioMap = ScenarioDataStore.getAllScenarios();
         setLayout(new BorderLayout());
         buildPanel();
     }
@@ -55,10 +56,7 @@ public class DefinePanel extends JPanel {
 
         educationRadio.addActionListener(e -> updateScenarios("Education"));
         healthRadio.addActionListener(e -> updateScenarios("Health"));
-        customRadio.addActionListener(e -> {
-            scenarioComboBox.removeAllItems();
-            scenarioComboBox.addItem("Custom Scenario (Not Implemented)");
-        });
+        customRadio.addActionListener(e -> updateScenarios("Custom"));
 
         mainContent.add(typePanel);
         mainContent.add(modePanel);
@@ -69,10 +67,15 @@ public class DefinePanel extends JPanel {
 
     private void updateScenarios(String mode) {
         scenarioComboBox.removeAllItems();
-        for (Scenario s : allScenarios) {
-            if (s.getMode().equals(mode)) {
+
+        List<Scenario> modeScenarios = scenarioMap.get(mode);
+
+        if (modeScenarios != null && !modeScenarios.isEmpty()) {
+            for (Scenario s : modeScenarios) {
                 scenarioComboBox.addItem(s.getScenarioName());
             }
+        } else if (mode.equals("Custom")) {
+            scenarioComboBox.addItem("Custom Scenario (Not Implemented)");
         }
     }
 
@@ -81,22 +84,34 @@ public class DefinePanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Please select a Quality Type.");
             return false;
         }
-        if (!customRadio.isSelected() && !healthRadio.isSelected() && !educationRadio.isSelected()) {
+
+        String selectedMode = "";
+        if (customRadio.isSelected()) selectedMode = "Custom";
+        else if (healthRadio.isSelected()) selectedMode = "Health";
+        else if (educationRadio.isSelected()) selectedMode = "Education";
+
+        if (selectedMode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a Mode.");
             return false;
         }
+
         if (scenarioComboBox.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this, "Please select a Scenario.");
             return false;
         }
 
         String selectedScenarioName = (String) scenarioComboBox.getSelectedItem();
-        for (Scenario s : allScenarios) {
-            if (s.getScenarioName().equals(selectedScenarioName)) {
-                sessionController.setSelectedScenario(s);
-                break;
+
+        if (!selectedMode.equals("Custom")) {
+            List<Scenario> currentList = scenarioMap.get(selectedMode);
+            for (Scenario s : currentList) {
+                if (s.getScenarioName().equals(selectedScenarioName)) {
+                    sessionController.setSelectedScenario(s);
+                    break;
+                }
             }
         }
+
         return true;
     }
 }
