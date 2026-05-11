@@ -33,7 +33,7 @@ To compile the project from the command line:
 
 To run the project:
 1. After compilation, run the following command:
-   java Main [cite: 96]
+   java Main 
 
 4. SCREENSHOT
 -------------
